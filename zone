@@ -1,5 +1,17 @@
 #!/bin/bash
 
+if [ $# -lt 1 ]
+then
+ echo ""
+ echo "This script will turn a zone file into the correct format for DNS Made Easy."
+ echo "--- Incorrect Syntax ----"
+ echo "Usage: zone <zone file>"
+ echo "Example: zone dnsmadeeasy.txt"
+ echo "Example: zone constellix.txt" 
+echo ""
+ exit
+fi
+
 echo "What is the domain?"
 read DOMAIN
 #OR="$(grep $! ORIGIN)"
@@ -30,5 +42,5 @@ for x in `grep -v ^# $1 | awk '{print $1}'`; do
     if [[ x == *"SOA"* ]] || if [[ x == *"A"* ]] || if [[ x == *"CNAME"* ]] || if [[ x == *"TXT"* ]] || if [[ x == *"SPF"* ]] || if [[ x == *"MX"* ]] || if [[ x == *"NS"* ]] || if [[ x == *"CAA"* ]] || if [[ x == *"PTR"* ]] && if ![[ x == *"IN"* ]]; then
         sed -i 's/$RECORDTYPE/IN   $RECORDTYPE/g'
     fi
-    echo x
+    echo $x
 done
