@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ $# -lt 1 ]
+then
+ echo ""
+ echo "This script will run a list of domains or a singluar domain against their respective TLD's to show you their delegated name servers."
+ echo "--- Incorrect Syntax ----"
+ echo "Usage: tldns <file of domains/domain>"
+ echo "Example: tldns dnsmadeeasy.txt"
+ echo "Example: tldns constellix.com" 
+echo ""
+ exit
+fi
+
+if [ -f $1 ]
+then
+	for x in `grep -v ^# $1 | awk '{print $1}'`; do
+		ODD="$(echo $x | awk -F'.' '{print $3}')"
+		if [[ $ODD ]]
+		then
+			TLD="$(echo $x | awk -F'.' '{printf $2".";printf $3}')"
+		else
+			TLD="$(echo $x | awk -F'.' '{print $2}')"
+		fi
+		TEMPTLD="$(host -t ns $TLD)"
+		TLDNS="$(echo "$TEMPTLD" | awk '{print $4;exit}')"
+		echo "nameservers from $TLD for $x"
+       		dig -t ns $x @$TLDNS > tempdom.txt
+		grep 'NS	' tempdom.txt
+	done
+else
+	ODD="$(echo $1 | awk -F'.' '{print $3}')"
+	if [[ $ODD ]]
+	then
+		TLD="$(echo $1 | awk -F'.' '{printf $2".";printf $3}')"
+	else
+		TLD="$(echo $1 | awk -F'.' '{print $2}')"
+	fi
+	TEMPTLD="$(host -t ns $TLD)"
+	TLDNS="$(echo "$TEMPTLD" | awk '{print $4;exit}')"
+	echo "nameservers from $TLD for $1"
+	dig -t ns $1 @$TLDNS > tempdom.txt
+	grep 'NS	' tempdom.txt | awk '{print $5}'
+	rm tempdom.txt
+fi
