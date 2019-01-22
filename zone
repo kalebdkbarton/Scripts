@@ -3,7 +3,7 @@
 echo "What is the domain?"
 read DOMAIN
 OR="$(grep $! ORIGIN)"
-if [ $DOMAIN ]
+if grep -Fxq "$ORIGIN" $1; then
     sed -i '1i$ORIGIN $OR' $1
 fi
 for x in `grep -v ^# $1 | awk '{print $1}'`; do
