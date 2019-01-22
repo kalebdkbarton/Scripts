@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Instructions
 if [ $# -lt 1 ]; then
     echo ""
     echo "This script will turn a zone file into the correct format for DNS Made Easy."
@@ -11,12 +12,17 @@ if [ $# -lt 1 ]; then
     exit
 fi
 
+# Get the domain
 echo "What is the domain?"
 read DOMAIN
-#OR="$(grep $! ORIGIN)"
-#if [ $OR ]; then
- #   sed -i '1i$ORIGIN $OR' $1
-#fi
+
+# Add the $ORIGIN if needed
+OR="$(grep $1 ORIGIN)"
+if [ $OR ]; then
+    sed -i '1i$ORIGIN $OR' $1
+fi
+
+# Remove the domain and add the 'IN'
 for x in `grep -v ^# $1 | awk '{print $1}'`; do
     if ![[ x == *"ORIGIN"* ]]; then
         sed -i 's/$DOMAIN/@/g'
@@ -41,5 +47,5 @@ for x in `grep -v ^# $1 | awk '{print $1}'`; do
     if [[ x == *"SOA"* ]] || if [[ x == *"A"* ]] || if [[ x == *"CNAME"* ]] || if [[ x == *"TXT"* ]] || if [[ x == *"SPF"* ]] || if [[ x == *"MX"* ]] || if [[ x == *"NS"* ]] || if [[ x == *"CAA"* ]] || if [[ x == *"PTR"* ]] && if ![[ x == *"IN"* ]]; then
         sed -i 's/$RECORDTYPE/IN   $RECORDTYPE/g'
     fi
-   echo $x
+    echo $x
 done
