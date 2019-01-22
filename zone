@@ -1,0 +1,33 @@
+#!/bin/bash
+
+echo "What is the domain?"
+read DOMAIN
+OR="$(grep $! ORIGIN)"
+if [ $DOMAIN ]
+    sed -i '1i$ORIGIN $OR' $1
+fi
+for x in `grep -v ^# $1 | awk '{print $1}'`; do
+    if ![[ x == *"DOMAIN"*]]; then
+        sed -i 's/$DOMAIN/@/g'
+    fi
+    if [[ x == *"SOA"*]]; then
+        RECORDTYPE="SOA"
+    elif [[ x == *"A"*]]; then
+        RECORDTYPE="A"
+    elif [[ x == *"CNAME"*]]; then
+        RECORDTYPE="A"
+    elif [[ x == *"TXT"*]]; then
+        RECORDTYPE="TXT"
+    elif [[ x == *"SPF"*]]; then
+        RECORDTYPE="SPF"
+    elif [[ x == *"MX"*]]; then
+        RECORDTYPE="MX"
+    elif [[ x == *"CAA"*]]; then
+        RECORDTYPE="CAA"
+    elif [[ x == *"PTR"*]]; then
+        RECORDTYPE="PTR"
+    fi
+    if [[ x == *"SOA"*]] || if [[ x == *"A"*]] || if [[ x == *"CNAME"*]] || if [[ x == *"TXT"*]] || if [[ x == *"SPF"*]] || if [[ x == *"MX"*]] || if [[ x == *"NS"*]] || if [[ x == *"CAA"*]] || if [[ x == *"PTR"*]] && if ![[ x == *"IN"*]]; then
+        sed -i 's/$RECORDTYPE/IN   $RECORDTYPE/g'
+    fi
+done
