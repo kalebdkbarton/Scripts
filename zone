@@ -17,15 +17,16 @@ echo "What is the domain?"
 read DOMAIN
 
 # Add the $ORIGIN if needed
-OR="$(grep $1 ORIGIN)"
+OR="$(grep ORIGIN $1)"
 if [ $OR ]; then
-    sed -i '1i$ORIGIN $OR' $1
+    sed -i '1s/^/$ORIGIN $OR /' $1
 fi
 
 # Remove the domain and add the 'IN'
-for x in `grep -v ^# $1 | awk '{print $1}'`; do
-    if ![[ x == *"ORIGIN"* ]]; then
-        sed -i 's/$DOMAIN/@/g'
+input="$1"
+while IFS= read -r x; do
+    if [[ x != *"ORIGIN"* ]]; then
+       sed -i '/$DOMAIN/c\@' $1
     fi
     if [[ x == *"SOA"* ]]; then
         RECORDTYPE="SOA"
@@ -44,8 +45,8 @@ for x in `grep -v ^# $1 | awk '{print $1}'`; do
     elif [[ x == *"PTR"* ]]; then
         RECORDTYPE="PTR"
     fi
-    if [[ x == *"SOA"* ]] || if [[ x == *"A"* ]] || if [[ x == *"CNAME"* ]] || if [[ x == *"TXT"* ]] || if [[ x == *"SPF"* ]] || if [[ x == *"MX"* ]] || if [[ x == *"NS"* ]] || if [[ x == *"CAA"* ]] || if [[ x == *"PTR"* ]] && if ![[ x == *"IN"* ]]; then
-        sed -i 's/$RECORDTYPE/IN   $RECORDTYPE/g'
-    fi
+   # if [[ x == *"SOA"* ]] || if [[ x == *"A"* ]] || if [[ x == *"CNAME"* ]] || if [[ x == *"TXT"* ]] || if [[ x == *"SPF"* ]] || if [[ x == *"MX"* ]] || if [[ x == *"NS"* ]] || if [[ x == *"CAA"* ]] || if [[ x == *"PTR"* ]] && if ![[ x == *"IN"* ]]; then
+   #    sed -i 's/$RECORDTYPE/IN   $RECORDTYPE/g'
+   # fi
     echo $x
-done
+done < "$input"
