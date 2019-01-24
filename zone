@@ -44,8 +44,9 @@ while IFS= read -r x; do
         RECORDTYPE="CAA"
     elif [[ x == *"PTR"* ]]; then
         RECORDTYPE="PTR"
-    fi
-   # if [[ x == *"SOA"* ]] || if [[ x == *"A"* ]] || if [[ x == *"CNAME"* ]] || if [[ x == *"TXT"* ]] || if [[ x == *"SPF"* ]] || if [[ x == *"MX"* ]] || if [[ x == *"NS"* ]] || if [[ x == *"CAA"* ]] || if [[ x == *"PTR"* ]] && if ![[ x == *"IN"* ]]; then
+    elif [[ x == *"SRV"* ]]; then
+        RECORDTYPE="SRV"
+   # if [[ x == *"SOA"* ]] || if [[ x == *"A"* ]] || if [[ x == *"CNAME"* ]] || if [[ x == *"TXT"* ]] || if [[ x == *"SPF"* ]] || if [[ x == *"MX"* ]] || if [[ x == *"NS"* ]] || if [[ x == *"CAA"* ]] || if [[ x == *"PTR"* ]] || if [[ x == *"SRV"* ]] && if ![[ x == *"IN"* ]]; then
    #    sed -i 's/$RECORDTYPE/IN   $RECORDTYPE/g'
    # fi
     echo $x
