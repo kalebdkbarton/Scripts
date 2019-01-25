@@ -28,10 +28,10 @@ else:
             output = line
         if "SOA" in line:
             continue
-        elif "A" in line:
-            RECORDTYPE="A"
         elif "CNAME" in line:
             RECORDTYPE="CNAME"
+        elif "A" in line:
+            RECORDTYPE="A"
         elif "TXT" in line:
             RECORDTYPE="TXT"
         elif "SPF" in line:
@@ -57,7 +57,15 @@ else:
         else:
             output = removeDomain3 
         if (RECORDTYPE == "NS"):
-            if "@" in removeDomain3:
+            if "@" in output:
                 continue
+        if (RECORDTYPE == "CNAME"):
+            if "@" in output:
+                print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
+                break
+        if (RECORDTYPE == "SRV"):
+            if "@" in output:
+                print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
+                break
         print(output)
     fh.close()
