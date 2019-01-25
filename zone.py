@@ -18,8 +18,7 @@ else:
         print ("$ORIGIN "+origin)
     fh = open(zone)
     for line in fh:
-        withSemi = ";"+origin
-        if withSemi in line:
+        if ";" in line:
             continue
         if "ORIGIN" not in line:
             removeDomain1 = line.replace(dotOrigindot, "")
