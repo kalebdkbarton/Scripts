@@ -29,41 +29,41 @@ else:
         if "SOA" in line:
             continue
         elif "CNAME" in line:
-            RECORDTYPE="CNAME"
+            recordType="CNAME"
         elif "A" in line:
-            RECORDTYPE="A"
+            recordType="A"
         elif "TXT" in line:
-            RECORDTYPE="TXT"
+            recordType="TXT"
         elif "SPF" in line:
-            RECORDTYPE="SPF"
+            recordType="SPF"
         elif "MX" in line:
-            RECORDTYPE="MX"
+            recordType="MX"
         elif "CAA" in line:
-            RECORDTYPE="CAA"
+            recordType="CAA"
         elif "PTR" in line:
-            RECORDTYPE="PTR"
+            recordType="PTR"
         elif "SRV" in line:
-            RECORDTYPE="SRV"
+            recordType="SRV"
         elif "NS" in line:
-            RECORDTYPE="NS"
+            recordType="NS"
         else:
-            RECORDTYPE="none"
-        if (RECORDTYPE != "none"):
+            recordType="none"
+        if (recordType != "none"):
             if "IN" not in line:
-                withIn = ("IN\t"+RECORDTYPE)
-                output = removeDomain3.replace(RECORDTYPE, withIn)
+                withIn = ("IN\t"+recordType)
+                output = removeDomain3.replace(recordType, withIn)
             else:
                 output = removeDomain3
         else:
             output = removeDomain3 
-        if (RECORDTYPE == "NS"):
+        if (recordType == "NS"):
             if "@" in output:
                 continue
-        if (RECORDTYPE == "CNAME"):
+        if (recordType == "CNAME"):
             if "@" in output:
                 print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
                 break
-        if (RECORDTYPE == "SRV"):
+        if (recordType == "SRV"):
             if "@" in output:
                 print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
                 break
