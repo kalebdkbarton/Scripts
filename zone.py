@@ -56,7 +56,9 @@ else:
             else:
                 output = removeDomain3
         else:
-            output = removeDomain3
-        #print(removeDomain2)
+            output = removeDomain3 
+        if (RECORDTYPE == "NS"):
+            if "@" in removeDomain3:
+                continue
         print(output)
     fh.close()
