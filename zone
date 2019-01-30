@@ -25,7 +25,7 @@ else:
             removeDomain2 = removeDomain1.replace(originDot, "@")
             removeDomain3 = removeDomain2.replace(origin, "@")
         else:
-            output = line
+            continue
         if "SOA" in line:
             continue
         elif "CNAME" in line:
@@ -55,7 +55,7 @@ else:
             else:
                 output = removeDomain3
         else:
-            output = removeDomain3 
+            output = line
         if (recordType == "NS"):
             if "@" in output:
                 continue
