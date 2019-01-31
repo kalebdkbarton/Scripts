@@ -23,7 +23,8 @@ if [ -f $1 ]; then
 		TLDNS="$(echo "$TEMPTLD" | awk '{print $4;exit}')"
 		echo "nameservers from $TLD for $x"
        		dig -t ns $x @$TLDNS > tempdom.txt
-		grep 'NS	' tempdom.txt
+		grep 'NS	' tempdom.txt | awk '{print $5}'
+		rm tempdom.txt
 	done
 else
 	ODD="$(echo $1 | awk -F'.' '{print $3}')"
