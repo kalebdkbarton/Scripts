@@ -1,6 +1,6 @@
 #! /Library/Frameworks/Python.framework/Versions/3.7/bin/python3
 import sys
-if len(sys.argv) <= 1:
+if len(sys.argv) <= 1: #if there is no argument passed
     print ("")
     print ("This script will turn a zone file into the correct format for DNS Made Easy.")
     print ("--- Incorrect Syntax ----")
@@ -9,26 +9,26 @@ if len(sys.argv) <= 1:
     print ("Example: zone constellix.txt")
     print ("")
 else:
-    zone=sys.argv[1]
+    zone=sys.argv[1] #set to first argument
     origin = (str(input("What is the origin domain?\n")))
     originDot = (origin+".")
-    dotOrigindot = ("."+origin+".")
+    dotOrigindot = ("."+origin+".") #all variations found
     print("Here is your fixed zone:\n\n")
     if "ORIGIN" not in zone:
-        print ("$ORIGIN "+origin)
+        print ("$ORIGIN "+origin) #add the origin
     fh = open(zone)
-    for line in fh:
-        if ";" in line:
+    for line in fh: #run file line by line
+        if ";" in line: #remove comments
             continue
-        if "ORIGIN" not in line:
+        if "ORIGIN" not in line: #remove the origin domain from the FQDN
             removeDomain1 = line.replace(dotOrigindot, "")
             removeDomain2 = removeDomain1.replace(originDot, "@")
             removeDomain3 = removeDomain2.replace(origin, "@")
         else:
-            continue
+            continue #don't print if $ORIGIN is in the line
         if "SOA" in line:
-            continue
-        elif "CNAME" in line:
+            continue #get rid of the SOA
+        elif "CNAME" in line:  #all of these grab the record type or lack thereof
             recordType="CNAME"
         elif "A" in line:
             recordType="A"
