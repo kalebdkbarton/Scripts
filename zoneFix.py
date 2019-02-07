@@ -1,8 +1,8 @@
-zone=sys.argv[1] #set to first argument
-origin = (str(input("What is the origin domain?\n")))
+#! /Library/Frameworks/Python.framework/Versions/3.7/bin/python3
+zone=sys.argv[1] #set file to first argument
+origin=sys.argv[2] #set origin to second argument
 originDot = (origin+".")
 dotOrigindot = ("."+origin+".") #all variations found
-print("Here is your fixed zone:\n\n")
 if "ORIGIN" not in zone:
     print ("$ORIGIN "+origin) #add the origin
 fh = open(zone)
