@@ -1,4 +1,5 @@
 #! /Library/Frameworks/Python.framework/Versions/3.7/bin/python3
+import sys
 zone=sys.argv[1] #set file to first argument
 origin=sys.argv[2] #set origin to second argument
 originDot = (origin+".")
@@ -56,5 +57,7 @@ for line in fh: #run file line by line
         if "@" in output:
             print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
             break
-    print(output)
+    if line.strip():
+        strippedOutput = output.strip('\n')
+        print(strippedOutput)
 fh.close()
