@@ -45,7 +45,7 @@ for line in fh: #run file line by line
         else:
             output = removeDomain3
     else:
-        output = line
+        continue
     if (recordType == "NS"):
         if "@" in output:
             continue

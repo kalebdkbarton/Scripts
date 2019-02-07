@@ -55,7 +55,7 @@ else:
             else:
                 output = removeDomain3
         else:
-            output = line
+            continue
         if (recordType == "NS"):
             if "@" in output:
                 continue
