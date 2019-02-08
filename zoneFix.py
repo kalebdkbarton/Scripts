@@ -5,7 +5,9 @@ origin=sys.argv[2] #set origin to second argument
 originDot = (origin+".")
 dotOrigindot = ("."+origin+".") #all variations found
 if "ORIGIN" not in zone:
-    print ("$ORIGIN "+origin) #add the origin
+    f = open('zone.json','w')
+    f.write("$ORIGIN "+origin) #add the origin
+    f.close()
 fh = open(zone)
 for line in fh: #run file line by line
     if ";" in line: #remove comments
@@ -15,7 +17,7 @@ for line in fh: #run file line by line
         removeDomain2 = removeDomain1.replace(originDot, "@")
         removeDomain3 = removeDomain2.replace(origin, "@")
     else:
-        continue #don't print if $ORIGIN is in the line
+        continue #don't output if $ORIGIN is in the line
     if "SOA" in line:
         continue #get rid of the SOA
     elif "CNAME" in line:  #all of these grab the record type or lack thereof
@@ -40,24 +42,29 @@ for line in fh: #run file line by line
         recordType="none"
     if (recordType != "none"):
         if "IN" not in line:
-            withIn = ("IN\t"+recordType)
-            output = removeDomain3.replace(recordType, withIn)
+            withIn = ("IN\t"+recordType) 
+            output = removeDomain3.replace(recordType, withIn) #add the IN
         else:
-            output = removeDomain3
+            output = removeDomain3 #IN is already there
     else:
         continue
     if (recordType == "NS"):
-        if "@" in output:
+        if "@" in output: #get rid of the root NS Records
             continue
-    if (recordType == "CNAME"):
+    if (recordType == "CNAME"): #no root CNAME Records
         if "@" in output:
-            print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
+            f = open('zone.json','w')
+            f.write("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
+            f.close()
             break
-    if (recordType == "SRV"):
+    if (recordType == "SRV"): #no root SRV Records
         if "@" in output:
-            print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
+            f = open('zone.json','w')
+            f.write("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
+            f.close()
             break
-    if line.strip():
-        strippedOutput = output.strip('\n')
-        print(strippedOutput)
+    if line.strip(): #no blank lines
+        f = open('zone.json','a')
+        f.write(output) #write output to file
+        f.close()
 fh.close()
