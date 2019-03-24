@@ -1,5 +1,37 @@
 #! /Library/Frameworks/Python.framework/Versions/3.7/bin/python3
 import sys
+def txtSplit(justTXT):
+        newTXT = []
+        if " " in justTXT:
+            lastWhitespaceIndex = -1
+            componentStartIndex = 0
+            i = 0
+            for character in justTXT: #loop and split as close to 255 at space
+                if character is " ": #if space is found, index it
+                    lastWhitespaceIndex = i
+                if (i - componentStartIndex == 255): #if 255 hit, go back
+                    componentStartIndex = (i+1)
+                    newTXT[lastWhitespaceIndex] = (character, " \"\"")
+                    newTXT.append(character)  
+                else:
+                    newTXT.append(character)
+                i+=1
+        else:
+            counter = 0
+            quotePosition = 255
+            for character in justTXT: #split at 255
+                counter += 1
+                if (counter == quotePosition):
+                    character = (character, "\"\"")
+                    newTXT.append(character, "\"\"")
+                    quotePosition += 255
+                else:
+                    newTXT.append(character)
+        finalTXT = (justTXT[1], "\"", newTXT)
+        return finalTXT
+        
+
+
 if len(sys.argv) <= 1: #if there is no argument passed
     print ("")
     print ("This script will turn a zone file into the correct format for DNS Made Easy.")
@@ -67,6 +99,12 @@ else:
             if "@" in output:
                 print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
                 break
+        if (recordType == "TXT"):
+            splitLine = output.split("\"") #split at quotation
+            justTXT = splitLine[1] #grab the TXT
+            recordLength = len(justTXT)
+            if (recordLength > 255): #if it's more than 255 characters
+                output = txtSplit(justTXT)
         if line.strip():
             strippedOutput = output.strip('\n')
             print(strippedOutput)
