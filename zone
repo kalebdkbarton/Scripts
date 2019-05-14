@@ -1,36 +1,118 @@
 #!/Library/Frameworks/Python.framework/Versions/3.7/bin/python3
 import sys
 
-def txtSplit(justTXT): #This will seperate the TXT records that are longer than 255 characters
-        newTXT = []
-        if " " in justTXT: #if there are spaces in the TXT record
-            lastWhitespaceIndex = -1
-            componentStartIndex = 0
-            i = 0
-            for character in justTXT: #loop and split as close to 255 at space
-                if character is " ": #if space is found, index it
-                    lastWhitespaceIndex = i
-                if (i - componentStartIndex == 255): #if 255 hit, go back to the last space
-                    componentStartIndex = (i+1) #add a new starting index
-                    newTXT[lastWhitespaceIndex] = (character, " \"\"") #add the splitting quotes at the last space
-                    newTXT.append(character)  
-                else:
-                    newTXT.append(character)
-                i+=1
-        else: #if there is no space in the TXT record
-            counter = 0
-            quotePosition = 255
-            for character in justTXT: #split at 255
-                counter += 1
-                if (counter == quotePosition): #add the splitting quotes
-                    character = (character, "\"\"")
-                    newTXT.append(character, "\"\"")
-                    quotePosition += 255 #itterate to the next 255 characters
-                else:
-                    newTXT.append(character) #if the counter is not 255, just give the letter
-        finalTXT = (justTXT[1], "\"", newTXT) #concatinate the TXT back together
-        return finalTXT
- 
+def txtSplit(justTXT):
+    '''
+    This will seperate the TXT records that are longer than 255 characters.
+    '''
+    newTXT = []
+    if " " in justTXT: #if there are spaces in the TXT record
+        lastWhitespaceIndex = -1
+        componentStartIndex = 0
+        i = 0
+        for character in justTXT: #loop and split as close to 255 at space
+            if character is " ": #if space is found, index it
+                lastWhitespaceIndex = i
+            if (i - componentStartIndex == 255): #if 255 hit, go back to the last space
+                componentStartIndex = (i+1) #add a new starting index
+                newTXT[lastWhitespaceIndex] = (character, " \"\"") #add the splitting quotes at the last space
+                newTXT.append(character)  
+            else:
+                newTXT.append(character)
+            i+=1
+    else: #if there is no space in the TXT record
+        counter = 0
+        quotePosition = 255
+        for character in justTXT: #split at 255
+            counter += 1
+            if (counter == quotePosition): #add the splitting quotes
+                character = (character, "\"\"")
+                newTXT.append(character, "\"\"")
+                quotePosition += 255 #itterate to the next 255 characters
+            else:
+                newTXT.append(character) #if the counter is not 255, just give the letter
+    finalTXT = (justTXT[1], "\"", newTXT) #concatinate the TXT back together
+    return finalTXT
+
+def typeFinder(line):
+    '''
+    This will grab the record type or lack thereof.
+    '''
+    if "SOA" in line:
+        return 'continue' #get rid of the SOA
+    elif "CNAME" in line:
+        recordType="CNAME"
+    elif "A" in line:
+        recordType="A"
+    elif "TXT" in line:
+        recordType="TXT"
+    elif "SPF" in line:
+        recordType="SPF"
+    elif "MX" in line:
+        recordType="MX"
+    elif "CAA" in line:
+        recordType="CAA"
+    elif "PTR" in line:
+        recordType="PTR"
+    elif "SRV" in line:
+        recordType="SRV"
+    elif "NS" in line:
+        recordType="NS"
+    else:
+        recordType="none"
+    return recordType
+
+def recordHandler(line, recordType, removeDomain3):
+    '''
+    This will handle the exeptions for specific record types and grab the output.
+    '''
+    if (recordType != "none"): 
+        if "IN" not in line: #add the IN if it's not there
+            withIn = ("IN\t"+recordType)
+            output = removeDomain3.replace(recordType, withIn)
+        else:
+            output = removeDomain3
+    else:
+        output = 'continue'
+    if (recordType == "NS"): #remove root NS records
+        if "@" in output:
+            output = 'continue'
+    if (recordType == "CNAME"): #no CNAME records for root
+        if "@\tIN" in output:
+            print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
+            quit()
+    if (recordType == "SRV"): #no SRV records for the root
+        if "@" in output:
+            print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
+            quit()
+    if (recordType == "TXT"): #splitting the TXT records that are too long
+        splitLine = output.split("\"") #split at quotation
+        justTXT = splitLine[1] #grab the TXT
+        recordLength = len(justTXT)
+        if (recordLength > 255): #if it's more than 255 characters
+            output = txtSplit(justTXT)
+    return output
+
+def originCheck(zone):
+    '''
+    This will check if the origin exists and ask for it if it doesn't.
+    '''
+    with open(zone) as zonefile:
+        if "$ORIGIN" not in zonefile.read():
+            origin = (str(input("What is the origin domain?\n")))
+            originDot = (origin+".")
+            dotOrigindot = ("."+origin+".") #all variations found
+            print("Here is your fixed zone:\n\n")
+            print ("$ORIGIN "+origin) #add the origin
+            return origin,originDot,dotOrigindot
+
+def ttlCheck(zone):
+    '''
+    This will check for a TTL and add one if it isn't there
+    '''
+    with open(zone) as zonefile:
+        if "$TTL" not in zonefile.read():
+            print ("$TTL 3600")
 
 def main():
     if len(sys.argv) <= 1: #if there is no argument passed
@@ -42,19 +124,12 @@ def main():
         print ("Example: zone constellix.txt")
         print ("")
     else:
-        zone=sys.argv[1] #set to first argument
-        with open(zone) as zonefile:
-            if "$ORIGIN" not in zonefile.read():
-                origin = (str(input("What is the origin domain?\n")))
-                originDot = (origin+".")
-                dotOrigindot = ("."+origin+".") #all variations found
-                print("Here is your fixed zone:\n\n")
-                print ("$ORIGIN "+origin) #add the origin
-            else:
-                print("Here is your fixed zone:\n\n")
-        with open(zone) as zonefile:
-            if "$TTL" not in zonefile.read():
-                print ("$TTL 3600")
+        zone=sys.argv[1] #grab file from first argument
+        try:
+            origin,originDot,dotOrigindot = originCheck(zone)
+        except:
+            print("Here is your fixed zone:\n\n")
+        ttlCheck(zone)
         with open(zone) as zonefile:
             for line in zonefile: #run file line by line
                 if ";" in line: #remove comments
@@ -71,56 +146,17 @@ def main():
                     dotOrigindot = ("."+origin+".") #all variations found
                     strippedOutput = line.strip('\n') #strip new lines
                     print(strippedOutput) #print out the origin if it already exists
+                    continue
                 if "$TTL" in line:
                     strippedOutput = line.strip('\n') #strip new lines
-                    print(strippedOutput) #print the default TTL if it already exists.
-                if "SOA" in line:
-                    continue #get rid of the SOA
-                elif "CNAME" in line:  #all of these grab the record type or lack thereof
-                    recordType="CNAME"
-                elif "A" in line:
-                    recordType="A"
-                elif "TXT" in line:
-                    recordType="TXT"
-                elif "SPF" in line:
-                    recordType="SPF"
-                elif "MX" in line:
-                    recordType="MX"
-                elif "CAA" in line:
-                    recordType="CAA"
-                elif "PTR" in line:
-                    recordType="PTR"
-                elif "SRV" in line:
-                    recordType="SRV"
-                elif "NS" in line:
-                    recordType="NS"
-                else:
-                    recordType="none"
-                if (recordType != "none"): 
-                    if "IN" not in line: #add the IN if it's not there
-                        withIn = ("IN\t"+recordType)
-                        output = removeDomain3.replace(recordType, withIn)
-                    else:
-                        output = removeDomain3
-                else:
+                    print(strippedOutput) #print the default TTL if it already exists
                     continue
-                if (recordType == "NS"): #remove root NS records
-                    if "@" in output:
-                        continue
-                if (recordType == "CNAME"): #no CNAME records for root
-                    if "@\tIN" in output:
-                        print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
-                        break
-                if (recordType == "SRV"): #no SRV records for the root
-                    if "@" in output:
-                        print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
-                        break
-                if (recordType == "TXT"): #splitting the TXT records that are too long
-                    splitLine = output.split("\"") #split at quotation
-                    justTXT = splitLine[1] #grab the TXT
-                    recordLength = len(justTXT)
-                    if (recordLength > 255): #if it's more than 255 characters
-                        output = txtSplit(justTXT)
+                recordType = typeFinder(line)
+                if recordType == 'continue':
+                    continue
+                output = recordHandler(line, recordType, removeDomain3)
+                if output == 'continue':
+                    continue
                 if line.strip():
                     strippedOutput = output.strip('\n') #strip new lines
                     print(strippedOutput)
