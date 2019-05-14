@@ -1,4 +1,4 @@
-#! /Library/Frameworks/Python.framework/Versions/3.7/bin/python3
+#!/Library/Frameworks/Python.framework/Versions/3.7/bin/python3
 import sys
 
 def txtSplit(justTXT): #This will seperate the TXT records that are longer than 255 characters
@@ -43,72 +43,86 @@ def main():
         print ("")
     else:
         zone=sys.argv[1] #set to first argument
-        origin = (str(input("What is the origin domain?\n")))
-        originDot = (origin+".")
-        dotOrigindot = ("."+origin+".") #all variations found
-        print("Here is your fixed zone:\n\n")
-        if "ORIGIN" not in zone:
-            print ("$ORIGIN "+origin) #add the origin
-        fh = open(zone)
-        for line in fh: #run file line by line
-            if ";" in line: #remove comments
-                continue
-            if "ORIGIN" not in line: #remove the origin domain from the FQDN
-                removeDomain1 = line.replace(dotOrigindot, "")
-                removeDomain2 = removeDomain1.replace(originDot, "@")
-                removeDomain3 = removeDomain2.replace(origin, "@")
+        with open(zone) as zonefile:
+            if "$ORIGIN" not in zonefile.read():
+                origin = (str(input("What is the origin domain?\n")))
+                originDot = (origin+".")
+                dotOrigindot = ("."+origin+".") #all variations found
+                print("Here is your fixed zone:\n\n")
+                print ("$ORIGIN "+origin) #add the origin
             else:
-                continue #don't print if $ORIGIN is in the line
-            if "SOA" in line:
-                continue #get rid of the SOA
-            elif "CNAME" in line:  #all of these grab the record type or lack thereof
-                recordType="CNAME"
-            elif "A" in line:
-                recordType="A"
-            elif "TXT" in line:
-                recordType="TXT"
-            elif "SPF" in line:
-                recordType="SPF"
-            elif "MX" in line:
-                recordType="MX"
-            elif "CAA" in line:
-                recordType="CAA"
-            elif "PTR" in line:
-                recordType="PTR"
-            elif "SRV" in line:
-                recordType="SRV"
-            elif "NS" in line:
-                recordType="NS"
-            else:
-                recordType="none"
-            if (recordType != "none"): 
-                if "IN" not in line: #add the IN if it's not there
-                    withIn = ("IN\t"+recordType)
-                    output = removeDomain3.replace(recordType, withIn)
-                else:
-                    output = removeDomain3
-            else:
-                continue
-            if (recordType == "NS"): #remove root NS records
-                if "@" in output:
+                print("Here is your fixed zone:\n\n")
+        with open(zone) as zonefile:
+            if "$TTL" not in zonefile.read():
+                print ("$TTL 3600")
+        with open(zone) as zonefile:
+            for line in zonefile: #run file line by line
+                if ";" in line: #remove comments
                     continue
-            if (recordType == "CNAME"): #no CNAME records for root
-                if "@\tIN" in output:
-                    print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
-                    break
-            if (recordType == "SRV"): #no SRV records for the root
-                if "@" in output:
-                    print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
-                    break
-            if (recordType == "TXT"): #splitting the TXT records that are too long
-                splitLine = output.split("\"") #split at quotation
-                justTXT = splitLine[1] #grab the TXT
-                recordLength = len(justTXT)
-                if (recordLength > 255): #if it's more than 255 characters
-                    output = txtSplit(justTXT)
-            if line.strip():
-                strippedOutput = output.strip('\n')
-                print(strippedOutput)
-        fh.close()
+                if "$ORIGIN" not in line: #remove the origin domain from the FQDN
+                    if origin:
+                        removeDomain1 = line.replace(dotOrigindot, "")
+                        removeDomain2 = removeDomain1.replace(originDot, "@")
+                        removeDomain3 = removeDomain2.replace(origin, "@")
+                else:
+                    originline = line.split() #split the declaration of the origin
+                    origin = originline[1] #grab the origin
+                    originDot = (origin+".")
+                    dotOrigindot = ("."+origin+".") #all variations found
+                    strippedOutput = line.strip('\n') #strip new lines
+                    print(strippedOutput) #print out the origin if it already exists
+                if "$TTL" in line:
+                    strippedOutput = line.strip('\n') #strip new lines
+                    print(strippedOutput) #print the default TTL if it already exists.
+                if "SOA" in line:
+                    continue #get rid of the SOA
+                elif "CNAME" in line:  #all of these grab the record type or lack thereof
+                    recordType="CNAME"
+                elif "A" in line:
+                    recordType="A"
+                elif "TXT" in line:
+                    recordType="TXT"
+                elif "SPF" in line:
+                    recordType="SPF"
+                elif "MX" in line:
+                    recordType="MX"
+                elif "CAA" in line:
+                    recordType="CAA"
+                elif "PTR" in line:
+                    recordType="PTR"
+                elif "SRV" in line:
+                    recordType="SRV"
+                elif "NS" in line:
+                    recordType="NS"
+                else:
+                    recordType="none"
+                if (recordType != "none"): 
+                    if "IN" not in line: #add the IN if it's not there
+                        withIn = ("IN\t"+recordType)
+                        output = removeDomain3.replace(recordType, withIn)
+                    else:
+                        output = removeDomain3
+                else:
+                    continue
+                if (recordType == "NS"): #remove root NS records
+                    if "@" in output:
+                        continue
+                if (recordType == "CNAME"): #no CNAME records for root
+                    if "@\tIN" in output:
+                        print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
+                        break
+                if (recordType == "SRV"): #no SRV records for the root
+                    if "@" in output:
+                        print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
+                        break
+                if (recordType == "TXT"): #splitting the TXT records that are too long
+                    splitLine = output.split("\"") #split at quotation
+                    justTXT = splitLine[1] #grab the TXT
+                    recordLength = len(justTXT)
+                    if (recordLength > 255): #if it's more than 255 characters
+                        output = txtSplit(justTXT)
+                if line.strip():
+                    strippedOutput = output.strip('\n') #strip new lines
+                    print(strippedOutput)
 
 main()
