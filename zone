@@ -98,7 +98,15 @@ def originCheck(zone):
     This will check if the origin exists and ask for it if it doesn't.
     '''
     with open(zone) as zonefile:
-        if "$ORIGIN" not in zonefile.read():
+        if "$ORIGIN" not in zonefile.read(): #if origin is not defined at all
+            origin = (str(input("What is the origin domain?\n")))
+            originDot = (origin+".")
+            dotOrigindot = ("."+origin+".") #all variations found
+            print("Here is your fixed zone:\n\n")
+            print ("$ORIGIN "+origin) #add the origin
+            return origin,originDot,dotOrigindot
+    with open(zone) as zonefile:    
+        if ";$ORIGIN" in zonefile.read(): #make sure it isn't commented out
             origin = (str(input("What is the origin domain?\n")))
             originDot = (origin+".")
             dotOrigindot = ("."+origin+".") #all variations found
