@@ -1,0 +1,35 @@
+#!/Library/Frameworks/Python.framework/Versions/3.7/bin/python3
+import sys
+
+def main():
+    if len(sys.argv) <= 1: #if there is no argument passed
+        print ("")
+        print ("This script will find CNAME records and other records that have the same FQDN.")
+        print ("--- Incorrect Syntax ----")
+        print ("Usage: cname_dup_check <zone file>")
+        print ("Example: cname_dup_check dnsmadeeasy.txt")
+        print ("Example: cname_dup_check constellix.txt")
+        print ("")
+        quit()
+    with open(sys.argv[1],'r') as zoneFile: #grab the zone file
+        recordList = [] #open the needed lists
+        cnameList = []
+        outputList = []
+        for line in zoneFile: #iterate by record
+            try:
+                name = line.split()[0] #grab the record name
+            except:
+                continue #throw out the shit lines
+            if 'CNAME' in line: 
+                    cnameList.append(name) #grab the CNAME records names
+            else:
+                    recordList.append(name) #grab the other records names
+        for record in recordList: #for the records (not CNAME)
+            if record in cnameList: #check for other records that have the same FQDN as a CNAME
+                if record not in outputList: #don't make duplicate outputs
+                    outputList.append(record) #add it to the list
+        print ("Here are the CNAME issues:\n")
+        for line in outputList:
+            print(line) #give me the output
+
+main()
