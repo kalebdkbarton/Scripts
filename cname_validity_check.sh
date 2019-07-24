@@ -1,0 +1,27 @@
+#!/bin/bash
+if [ $# -lt 1 ]; then
+	echo ""
+	echo "This script will find CNAME Records that point to an FQDN that has no defined record."
+	echo "--- Incorrect Syntax ----"
+	echo "Usage: cname_validity_check <zone file>"
+	echo "Example: cname_validity_check zone.txt"
+	echo ""
+	exit
+fi
+input="$1" #grab the input file
+while IFS= read -r line; do #iterate line by line
+    if [[ $line == *";"* ]]; then #remove lines with comments
+        continue
+    elif [[ $line == *"CNAME"* ]]; then #get CNAME lines
+        FQDN="$(echo $line | awk '{print $NF}')" #grab FQDN from CNAME lines
+        if [[ $FQDN == "@" ]]; then #remove ones referencing the root
+            continue
+        fi
+        DIG="$(dig $FQDN ANY)" #dig the FQDN
+        if [[ $DIG == *"ANSWER SECTION"* ]]; then #check for any records
+            continue
+        else
+            echo $FQDN #echo list of non-defined FQDNs
+        fi
+    fi
+done < "$input" #close file
