@@ -13,19 +13,8 @@ fi
 
 if [ -f $1 ]; then
 	for x in `grep -v ^# $1 | awk '{print $1}'`; do
-		ODD=`echo $x | awk -F'.' '{print $3}'`
-		REALLYODD="$(echo $x | awk -F'.' '{print $4}')"
-		if [[ $REALLYODD ]]; then
-			TLD=`echo $x | awk -F'.' '{printf $(NF-2)".";printf $(NF-1)".";printf $NF}'`
-		elif [[ $ODD ]]; then
-			TLD=`echo $x | awk -F'.' '{printf $(NF-1)".";printf $NF}'`
-		else
-			TLD=`echo $x | awk -F'.' '{print $2}'`
-		fi
-		TEMPTLD=`host -t ns $TLD`
-		TLDNS=`echo "$TEMPTLD" | awk '{print $4;exit}'`
 		echo "nameservers from $TLD for $x"
-		NAMESERVERS=`dig -t ns $x @$TLDNS | grep 'IN\sNS' | awk '{print $5}'`
+		NAMESERVERS=`dig $x @f.root-servers.net +trace | grep $x | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
 		if [[ $NAMESERVERS ]]; then
 			echo "$NAMESERVERS"
 			echo ""
@@ -35,20 +24,8 @@ if [ -f $1 ]; then
 	fi
 	done
 else
-	ODD="$(echo $1 | awk -F'.' '{print $3}')"
-	REALLYODD=`echo $1 | awk -F'.' '{print $4}'`
-	if [[ $REALLYODD ]]; then
-		TLD=`echo $1 | awk -F'.' '{printf $(NF-2)".";printf $(NF-1)".";printf $NF}'`
-	elif [[ $ODD ]]; then
-		TLD=`echo $1 | awk -F'.' '{printf $(NF-1)".";printf $NF}'`
-		echo "$TLD"
-	else
-		TLD=`echo $1 | awk -F'.' '{print $2}'`
-	fi
-	TEMPTLD=`host -t ns $TLD`
-	TLDNS=`echo "$TEMPTLD" | awk '{print $4;exit}'`
 	echo "nameservers from $TLD for $1"
-	NAMESERVERS=`dig -t ns $1 @$TLDNS | grep 'IN\sNS' | awk '{print $5}'`
+	NAMESERVERS=`dig $1 @f.root-servers.net +trace | grep $1 | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
 	if [[ $NAMESERVERS ]]; then
 		echo "$NAMESERVERS"
 		echo ""
