@@ -82,7 +82,7 @@ def recordHandler(line, recordType, removeDomain3):
             print("\033[1;31;40m ERROR: CANNOT HAVE CNAME FOR THE ROOT DOMAIN  \n")
             quit()
     if (recordType == "SRV"): #no SRV records for the root
-        if "@" in output:
+        if "@" in (output.split('.')[1]):
             print("\033[1;31;40m ERROR: CANNOT HAVE SRV FOR THE ROOT DOMAIN  \n")
             quit()
     if (recordType == "TXT"): #splitting the TXT records that are too long
