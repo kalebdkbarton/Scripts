@@ -24,7 +24,7 @@ if [ -f $1 ]; then
 	fi
 	done
 else
-	echo "nameservers from $TLD for $1"
+	echo "nameservers for $1"
 	NAMESERVERS=`dig ns $1 @f.root-servers.net +trace +noanswer | grep $1 | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
 	if [[ $NAMESERVERS ]]; then
 		echo "$NAMESERVERS"
