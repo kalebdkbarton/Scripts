@@ -13,7 +13,7 @@ fi
 
 if [ -f $1 ]; then
 	for x in `grep -v ^# $1 | awk '{print $1}'`; do
-		echo "nameservers from $TLD for $x"
+		echo "nameservers for $x"
 		NAMESERVERS=`dig ns $x @f.root-servers.net +trace +noanswer | grep $x | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
 		if [[ $NAMESERVERS ]]; then
 			echo "$NAMESERVERS"
