@@ -87,10 +87,10 @@ def recordHandler(line, recordType, removeDomain3):
             quit()
     if (recordType == "TXT"): #splitting the TXT records that are too long
         splitLine = output.split("\"") #split at quotation
-        output = splitLine[1] #grab the TXT
-        '''recordLength = len(justTXT)
+        justTXT = splitLine[1] #grab the TXT
+        recordLength = len(justTXT)
         if (recordLength > 255): #if it's more than 255 characters
-            output = txtSplit(justTXT)'''
+            output = txtSplit(justTXT)
     return output
 
 def originCheck(zone):
