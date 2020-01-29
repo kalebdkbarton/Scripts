@@ -140,8 +140,6 @@ def main():
         ttlCheck(zone)
         with open(zone) as zonefile:
             for line in zonefile: #run file line by line
-                if ";" in line: #remove comments
-                    continue
                 if "$ORIGIN" not in line: #remove the origin domain from the FQDN
                     if origin:
                         removeDomain1 = line.replace(dotOrigindot, "")
