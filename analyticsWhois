@@ -1,0 +1,18 @@
+#/bin/bash
+if [ $# -lt 1 ]; then
+	echo ""
+	echo "This script will do a whois on the IPs in a DNS Made Easy Real Time Stats output and grab the companies who own the IPs."
+	echo "--- Incorrect Syntax ----"
+	echo "Usage: analyticsWhois <file of RTS output>"
+	echo "Example: analyticsWhois rts.csv"
+	echo ""
+	exit
+fi
+
+IPs=`tail -n+3 $1 | awk -F ',' '{print $13}'`
+for IP in $IPs; do
+    org=`whois $IP | grep 'OrgName' | awk '{print $2}'`
+    if [[ $org ]]; then
+        echo $IP $org
+    fi
+done
