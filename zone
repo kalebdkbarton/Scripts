@@ -87,11 +87,11 @@ def recordHandler(line, recordType, removeDomain3):
             quit()
     if (recordType == "TXT"): #splitting the TXT records that are too long
         splitLine = output.split("\"") #split at quotation
-        justTXT = splitLine[1] #grab the TXT
-       ''' recordLength = len(justTXT)
+        output = splitLine[1] #grab the TXT
+        '''recordLength = len(justTXT)
         if (recordLength > 255): #if it's more than 255 characters
             output = txtSplit(justTXT)'''
-    return justTXT
+    return output
 
 def originCheck(zone):
     '''
@@ -140,6 +140,8 @@ def main():
         ttlCheck(zone)
         with open(zone) as zonefile:
             for line in zonefile: #run file line by line
+                if ";" in line[1]: #remove comments
+                    continue
                 if "$ORIGIN" not in line: #remove the origin domain from the FQDN
                     if origin:
                         removeDomain1 = line.replace(dotOrigindot, "")
