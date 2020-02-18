@@ -139,8 +139,11 @@ def main():
             print("Here is your fixed zone:\n\n")
         ttlCheck(zone)
         with open(zone) as zonefile:
-            for line in zonefile: #run file line by line
-                if ";" in line[1]: #remove comments
+            for line in zonefile: #run file line by line:
+                try:
+                    if ";" in line[0]: #remove comments
+                        continue
+                except:
                     continue
                 if "$ORIGIN" not in line: #remove the origin domain from the FQDN
                     if origin:
