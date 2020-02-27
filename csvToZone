@@ -5,18 +5,19 @@ if len(sys.argv) <= 1: #if there is no argument passed
     print ("")
     print ("This script will turn a csv file into the correct format for DNS Made Easy.")
     print ("--- Incorrect Syntax ----")
-    print ("Usage: aRecordsCsv <domain name> <zone csv>")
-    print ("Example: aRecordsCsv dnsmadeeasy.com dnsmadeeasy.csv")
+    print ("Usage: csvToZone <domain name> <zone csv>")
+    print ("Example: csvToZone dnsmadeeasy.com dnsmadeeasy.csv")
     print ("")
 else:
     file=sys.argv[2] #grab file from first argument
     print('$ORIGIN {}'.format(sys.argv[1]))
     with open(file) as dbfile:
         for line in dbfile: #run file line by line
-            name,IP=line.split(',')
-            name=name.replace('.{}'.format(sys.argv[1]),'')#strip root from FQDN
-            name=name.replace('{}'.format(sys.argv[1]),'') #don't have root 
+            type,domain,name,value=line.split(',')
             if name == '':
                 name='@'
-            IP=IP.strip('\n')
-            print ('{}\t1800\tIN\tA\t{}'.format(name,IP))
+            value=value.strip('\n')
+            if type == "TXT":
+                print ('{}\t1800\tIN\t{}\t"{}"'.format(name,type,value))
+            else:
+                print ('{}\t1800\tIN\t{}\t{}'.format(name,type,value))

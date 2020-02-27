@@ -1,0 +1,23 @@
+#!/Library/Frameworks/Python.framework/Versions/3.7/bin/python3
+import sys
+alldomains=[]
+domains=[]
+if len(sys.argv) <= 1: #if there is no argument passed
+        print ("")
+        print ("This script will comapare two lists of domains to find the domains that were not queried for a given month.")
+        print ("--- Incorrect Syntax ----")
+        print ("Usage: compareDomains <all domains file> <queried domains file>")
+        print ("Example: compareDomains alldomains.txt useddomains.txt")
+        print ("")
+else:
+    with open(sys.argv[1]) as allfile:
+        for line in allfile:
+            line=line.rstrip()
+            alldomains.append(line)
+    with open(sys.argv[2]) as file:
+        for line in file:
+            line=line.rstrip()
+            domains.append(line)
+    for domain in domains:
+        if domain not in alldomains:
+            print(domain)    
