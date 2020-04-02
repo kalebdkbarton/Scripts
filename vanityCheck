@@ -1,11 +1,10 @@
 #!/bin/bash
 if [ $# -lt 1 ]; then
 	echo ""
-	echo "This script will run a list of domains or a singluar domain against their respective TLD's to show you their delegated name servers."
+	echo "This script will see who owns the IP of a name server to check for VanityDNS."
 	echo "--- Incorrect Syntax ----"
-	echo "Usage: tldns <file of domains/domain>"
-	echo "Example: tldns dnsmadeeasy.txt"
-	echo "Example: tldns constellix.com" 
+	echo "Usage: vanityCheck <domain name>"
+	echo "Example: vanityCheck kalebbarton.com"
 	echo ""
 	exit
 fi
