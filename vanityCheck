@@ -1,0 +1,23 @@
+#!/bin/bash
+if [ $# -lt 1 ]; then
+	echo ""
+	echo "This script will run a list of domains or a singluar domain against their respective TLD's to show you their delegated name servers."
+	echo "--- Incorrect Syntax ----"
+	echo "Usage: tldns <file of domains/domain>"
+	echo "Example: tldns dnsmadeeasy.txt"
+	echo "Example: tldns constellix.com" 
+	echo ""
+	exit
+fi
+nameservers=`dig +short ns $1`
+for nameserver in $nameservers; do
+    ip=`dig +short a $nameserver`
+        org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
+    if [ -z "$org" ]; then
+        org=`whois $ip | grep org-name | sed 's/org-name://g'`
+    fi
+    if [ -z "$org" ]; then
+        org=`whois $ip | grep netname: | sed 's/netname://g'`
+    fi
+    echo $nameserver is owned by $org
+done
