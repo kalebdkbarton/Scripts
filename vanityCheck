@@ -13,7 +13,7 @@ fi
 if [ -f $1 ]; then #check if a file exists with the name
 	for domain in `grep -v ^# $1 | awk '{print $1}'`; do
         echo Vanity Check for $domain
-        nameservers=`dig +short ns $domain`
+        nameservers=`dig ns $domain @f.root-servers.net +trace +noanswer | grep $domain | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
         for nameserver in $nameservers; do
         ip=`dig +short a $nameserver`
             org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
@@ -31,7 +31,7 @@ if [ -f $1 ]; then #check if a file exists with the name
     echo ""
     done
 else #if no file exists, run the argument as a domain
-    nameservers=`dig +short ns $1`
+    nameservers=`dig ns $1 @f.root-servers.net +trace +noanswer | grep $1 | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
     for nameserver in $nameservers; do
         ip=`dig +short a $nameserver`
             org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
