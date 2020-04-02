@@ -3,20 +3,47 @@ if [ $# -lt 1 ]; then
 	echo ""
 	echo "This script will see who owns the IP of a name server to check for VanityDNS."
 	echo "--- Incorrect Syntax ----"
-	echo "Usage: vanityCheck <domain name>"
+	echo "Usage: vanityCheck <domain name/file name>"
 	echo "Example: vanityCheck kalebbarton.com"
+    echo "Example: vanityCheck domains.txt"
 	echo ""
 	exit
 fi
-nameservers=`dig +short ns $1`
-for nameserver in $nameservers; do
-    ip=`dig +short a $nameserver`
-        org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
-    if [ -z "$org" ]; then
-        org=`whois $ip | grep org-name | sed 's/org-name://g'`
-    fi
-    if [ -z "$org" ]; then
-        org=`whois $ip | grep netname: | sed 's/netname://g'`
-    fi
-    echo $nameserver is owned by $org
-done
+
+if [ -f $1 ]; then #check if a file exists with the name
+	for domain in `grep -v ^# $1 | awk '{print $1}'`; do
+        echo Vanity Check for $domain
+        nameservers=`dig +short ns $domain`
+        for nameserver in $nameservers; do
+        ip=`dig +short a $nameserver`
+            org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
+        if [ -z "$org" ]; then
+            org=`whois $ip | grep org-name | sed 's/org-name://g'`
+        fi
+        if [ -z "$org" ]; then
+            org=`whois $ip | grep netname: | sed 's/netname://g'`
+        fi
+        if [ -z "$org" ]; then
+            org=`whois $ip | grep NetName: | sed 's/NetName://g'`
+        fi
+        echo $nameserver is owned by $org
+        done
+    echo ""
+    done
+else #if no file exists, run the argument as a domain
+    nameservers=`dig +short ns $1`
+    for nameserver in $nameservers; do
+        ip=`dig +short a $nameserver`
+            org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
+        if [ -z "$org" ]; then
+            org=`whois $ip | grep org-name | sed 's/org-name://g'`
+        fi
+        if [ -z "$org" ]; then
+            org=`whois $ip | grep netname: | sed 's/netname://g'`
+        fi
+        if [ -z "$org" ]; then
+            org=`whois $ip | grep NetName: | sed 's/NetName://g'`
+        fi
+        echo $nameserver is owned by $org
+    done
+fi
