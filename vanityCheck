@@ -15,17 +15,8 @@ if [ -f $1 ]; then #check if a file exists with the name
         echo Vanity Check for $domain
         nameservers=`dig ns $domain @f.root-servers.net +trace +noanswer | grep $domain | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
         for nameserver in $nameservers; do
-        ip=`dig +short a $nameserver`
-            org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
-        if [ -z "$org" ]; then
-            org=`whois $ip | grep org-name | sed 's/org-name://g'`
-        fi
-        if [ -z "$org" ]; then
-            org=`whois $ip | grep netname: | sed 's/netname://g'`
-        fi
-        if [ -z "$org" ]; then
-            org=`whois $ip | grep NetName: | sed 's/NetName://g'`
-        fi
+        ip=`dig +short a $nameserver` 
+        org=`whois $ip | grep 'OrgName:\|org-name\|netname\|NetName' | sed 's/OrgName://g'| sed 's/org-name://g'| sed 's/netname://g'| sed 's/NetName://g'`
         echo $nameserver is owned by $org
         done
     echo ""
@@ -34,16 +25,7 @@ else #if no file exists, run the argument as a domain
     nameservers=`dig ns $1 @f.root-servers.net +trace +noanswer | grep $1 | grep 'IN\sNS' | awk '{print $5}' | sort | uniq`
     for nameserver in $nameservers; do
         ip=`dig +short a $nameserver`
-            org=`whois $ip | grep OrgName: | sed 's/OrgName://g'`
-        if [ -z "$org" ]; then
-            org=`whois $ip | grep org-name | sed 's/org-name://g'`
-        fi
-        if [ -z "$org" ]; then
-            org=`whois $ip | grep netname: | sed 's/netname://g'`
-        fi
-        if [ -z "$org" ]; then
-            org=`whois $ip | grep NetName: | sed 's/NetName://g'`
-        fi
+        org=`whois $ip | grep 'OrgName:\|org-name\|netname\|NetName' | sed 's/OrgName://g'| sed 's/org-name://g'| sed 's/netname://g'| sed 's/NetName://g'`
         echo $nameserver is owned by $org
     done
 fi
