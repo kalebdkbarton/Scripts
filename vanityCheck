@@ -26,6 +26,6 @@ else #if no file exists, run the argument as a domain
     for nameserver in $nameservers; do
         ip=`dig +short a $nameserver`
         org=`whois $ip | grep 'OrgName:\|org-name\|netname\|NetName' | sed 's/OrgName://g'| sed 's/org-name://g'| sed 's/netname://g'| sed 's/NetName://g'`
-        echo $nameserver is owned by $org
+        echo $nameserver \($ip\) is owned by $org
     done
 fi
