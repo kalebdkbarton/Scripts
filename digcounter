@@ -1,4 +1,13 @@
-arr=()
+if [ $# -lt 3 ]; then
+	echo ""
+	echo "This script will run a number of digs and count the outputs. This is useful for testing weighted round robin"
+	echo "--- Incorrect Syntax ----"
+	echo "Usage: $0 <number of digs> <FQDN to test> <nameserver to test against>"
+	echo "Example: $0 100 kalebbarton.com ns10.dnsmadeeasy.com"
+	echo ""
+	exit
+fi
+
 for ((i = 1; i <= $1; i++ )); do
     arr+=("`dig $2 @$3 +short`")
 done
