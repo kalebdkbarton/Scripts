@@ -1,6 +1,4 @@
-from optparse import OptionParser
 import sys, socket
-from pprint import pprint
 import dns.resolver, dns.zone
 from dns.exception import DNSException
 from dns.rdataclass import *
