@@ -60,7 +60,7 @@ def main():
     for (name, rdataset) in z.iterate_rdatasets():
         if rdataset.rdtype == SOA:
             continue
-        if rdataset.rdtype == NS:
+        if rdataset.rdtype == NS and str(domain+".")==str(name):
             continue
         match = False
         result = None
