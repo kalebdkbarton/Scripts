@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import sys
-
+import re
 def txtSplit(justTXT):
     '''
     This will seperate the TXT records that are longer than 255 characters.
@@ -11,7 +11,7 @@ def txtSplit(justTXT):
         componentStartIndex = 0
         i = 0
         for character in justTXT: #loop and split as close to 255 at space
-            if character is " ": #if space is found, index it
+            if character == " ": #if space is found, index it
                 lastWhitespaceIndex = i
             if (i - componentStartIndex == 255): #if 255 hit, go back to the last space
                 componentStartIndex = (i+1) #add a new starting index
@@ -148,8 +148,8 @@ def main():
                 if "$ORIGIN" not in line: #remove the origin domain from the FQDN
                     if origin:
                         removeDomain1 = line.replace(dotOrigindot, "")
-                        removeDomain2 = removeDomain1.replace(originDot, "@")
-                        removeDomain3 = removeDomain2.replace(origin, "@")
+                        removeDomain2 = re.sub(originDot+'\s','@',removeDomain1)
+                        removeDomain3 = re.sub(origin+'\s','@',removeDomain2)
                 else:
                     originline = line.split() #split the declaration of the origin
                     origin = originline[1] #grab the origin
@@ -170,7 +170,8 @@ def main():
                     continue
                 if line.strip():
                     strippedOutput = output.strip('\n') #strip new lines
-                    print(strippedOutput)
+                    formattedOutput = ' '.join(strippedOutput.split())
+                    print(formattedOutput.replace(' ','\t'))
 
 if __name__ == "__main__":
     main()
