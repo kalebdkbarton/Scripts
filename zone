@@ -43,8 +43,9 @@ def recordHandler(line, recordType, removeDomain3):
     '''
     if (recordType != "none"): 
         if "IN" not in line: #add the IN if it's not there
-            withIn = ("IN\t"+recordType)
-            output = removeDomain3.replace(recordType, withIn)
+            withIn = ("\tIN\t"+recordType+"\t")
+            output = re.sub("\s"+recordType+"\s",withIn,removeDomain3)
+            #output = removeDomain3.replace(recordType, withIn)
         else:
             output = removeDomain3
     else:
